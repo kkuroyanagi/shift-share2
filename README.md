@@ -1,36 +1,51 @@
-This is a [Next.js](https://nextjs.org) project bootstrapped with [`create-next-app`](https://nextjs.org/docs/app/api-reference/cli/create-next-app).
+# シフト管理 (shift-share2)
 
-## Getting Started
+小規模法人向けの勤務シフト計画・実績管理アプリです。
 
-First, run the development server:
+- 曜日ごとの基本パターンから**年度単位**(4月〜翌3月)の計画を一括生成
+- 個別の日の計画変更・実績入力
+- カレンダー上で計画と実績の差分を表示(✓計画どおり / 変:変更あり / 未:実績未入力 / 外:計画外勤務)
+- 年度サマリーで月別の計画・実績・差の労働時間を集計
+- 従業員の追加・退職(履歴は保持)に対応
+
+## 起動方法
 
 ```bash
+npm install
 npm run dev
-# or
-yarn dev
-# or
-pnpm dev
-# or
-bun dev
 ```
 
-Open [http://localhost:3000](http://localhost:3000) with your browser to see the result.
+ブラウザで http://localhost:3000 を開きます。
 
-You can start editing the page by modifying `app/page.tsx`. The page auto-updates as you edit the file.
+本番運用する場合:
 
-This project uses [`next/font`](https://nextjs.org/docs/app/building-your-application/optimizing/fonts) to automatically optimize and load [Geist](https://vercel.com/font), a new font family for Vercel.
+```bash
+npm run build
+npm start
+```
 
-## Learn More
+## 初期設定の手順
 
-To learn more about Next.js, take a look at the following resources:
+1. **従業員** ページで従業員を登録(名前と表示色)
+2. **基本パターン** ページで曜日ごとの「いつもの勤務」を登録(例: 月曜=山田 9:00〜17:00)
+3. 同じページの「年度計画の一括生成」で対象年度を選んで生成
+4. **シフト表**(カレンダー)で日付をクリックして、計画の変更や実績の入力を行う
 
-- [Next.js Documentation](https://nextjs.org/docs) - learn about Next.js features and API.
-- [Learn Next.js](https://nextjs.org/learn) - an interactive Next.js tutorial.
+計画の一括生成は入力済みの日付を上書きしないため、パターンを変えて何度実行しても安全です。
 
-You can check out [the Next.js GitHub repository](https://github.com/vercel/next.js) - your feedback and contributions are welcome!
+## 日々の使い方
 
-## Deploy on Vercel
+- カレンダーの日付をクリック → その日の編集ページへ
+- 計画どおり働いた日は「計画どおりに勤務した」ボタンで実績を一括コピー
+- 時刻が違った日は実績欄に実際の時刻を入力
+- 退職者は従業員ページで「在籍」を外す(過去の実績は残ります)
 
-The easiest way to deploy your Next.js app is to use the [Vercel Platform](https://vercel.com/new?utm_medium=default-template&filter=next.js&utm_source=create-next-app&utm_campaign=create-next-app-readme) from the creators of Next.js.
+## データ
 
-Check out our [Next.js deployment documentation](https://nextjs.org/docs/app/building-your-application/deploying) for more details.
+データは `data/shift.db` (SQLite) に保存されます。このファイルをコピーすればバックアップになります。
+
+## 技術構成
+
+- Next.js (App Router) + TypeScript + Tailwind CSS
+- SQLite (better-sqlite3) — サーバー不要のファイルDB
+- 現在はローカル利用前提で認証なし。ネット公開する場合は認証の追加が必要です。
