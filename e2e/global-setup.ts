@@ -1,29 +1,17 @@
 import Database from "better-sqlite3";
 import path from "path";
-import fs from "fs";
+import { mkdirSync } from "fs";
 
-// 開発時のホットリロードで接続が増殖しないよう globalThis に保持する
-const globalForDb = globalThis as unknown as { _shiftDb?: Database.Database };
+export default function globalSetup() {
+  const dbPath = path.resolve("data/test.db");
+  mkdirSync(path.dirname(dbPath), { recursive: true });
 
-export function getDb(): Database.Database {
-  if (globalForDb._shiftDb) return globalForDb._shiftDb;
-
-  const dataDir = path.join(process.cwd(), "data");
-  fs.mkdirSync(dataDir, { recursive: true });
-
-  const dbPath = process.env.DB_FILE
-    ? path.resolve(process.env.DB_FILE)
-    : path.join(dataDir, "shift.db");
+  // ファイルを unlink すると Windows では WAL/SHM のロックと衝突するため、
+  // 既存ファイルを開いてテーブルを作成・全クリアする方式にする。
   const db = new Database(dbPath);
   db.pragma("journal_mode = WAL");
   db.pragma("foreign_keys = ON");
-  migrate(db);
 
-  globalForDb._shiftDb = db;
-  return db;
-}
-
-function migrate(db: Database.Database) {
   db.exec(`
     CREATE TABLE IF NOT EXISTS employees (
       id         INTEGER PRIMARY KEY AUTOINCREMENT,
@@ -32,7 +20,6 @@ function migrate(db: Database.Database) {
       active     INTEGER NOT NULL DEFAULT 1,
       sort_order INTEGER NOT NULL DEFAULT 0
     );
-
     CREATE TABLE IF NOT EXISTS patterns (
       id          INTEGER PRIMARY KEY AUTOINCREMENT,
       employee_id INTEGER NOT NULL REFERENCES employees(id) ON DELETE CASCADE,
@@ -40,7 +27,6 @@ function migrate(db: Database.Database) {
       start_time  TEXT    NOT NULL,
       end_time    TEXT    NOT NULL
     );
-
     CREATE TABLE IF NOT EXISTS shifts (
       id           INTEGER PRIMARY KEY AUTOINCREMENT,
       employee_id  INTEGER NOT NULL REFERENCES employees(id) ON DELETE CASCADE,
@@ -52,7 +38,9 @@ function migrate(db: Database.Database) {
       note         TEXT,
       UNIQUE (employee_id, date)
     );
-
     CREATE INDEX IF NOT EXISTS idx_shifts_date ON shifts(date);
   `);
+
+  db.close();
+  // データの投入は各 spec の beforeAll (resetDb) で行う
 }

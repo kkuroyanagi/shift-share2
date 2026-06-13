@@ -42,3 +42,8 @@ next-env.d.ts
 
 # SQLite database
 /data/
+
+# Playwright
+/test-results/
+/playwright-report/
+/playwright/.cache/
