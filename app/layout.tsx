@@ -9,6 +9,7 @@ export const metadata: Metadata = {
 
 const NAV = [
   { href: "/", label: "シフト表" },
+  { href: "/list", label: "年間予定・実績" },
   { href: "/summary", label: "年度サマリー" },
   { href: "/patterns", label: "基本パターン" },
   { href: "/employees", label: "従業員" },

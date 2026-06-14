@@ -68,4 +68,10 @@ test.describe("画面スクリーンショット", () => {
     await page.waitForLoadState("networkidle");
     await page.screenshot({ path: `${SHOT_DIR}/05-summary.png`, fullPage: true });
   });
+
+  test("年間予定・実績", async ({ page }) => {
+    await page.goto("/list?fy=2026");
+    await page.waitForLoadState("networkidle");
+    await page.screenshot({ path: `${SHOT_DIR}/06-list.png`, fullPage: true });
+  });
 });

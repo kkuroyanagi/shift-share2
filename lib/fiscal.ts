@@ -73,6 +73,11 @@ export function datesInMonth(ym: string): string[] {
   return dates;
 }
 
+/** 年度に含まれる全日付の 'YYYY-MM-DD' リスト (4月始まり) */
+export function datesInFiscalYear(fy: number): string[] {
+  return fiscalMonths(fy).flatMap((ym) => datesInMonth(ym));
+}
+
 export function isValidDateStr(s: string): boolean {
   if (!/^\d{4}-\d{2}-\d{2}$/.test(s)) return false;
   const d = toDate(s);

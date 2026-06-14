@@ -188,3 +188,15 @@ export function shiftsByDateForMonth(ym: string): Map<string, Shift[]> {
   }
   return map;
 }
+
+/** 年間一覧用: 年度内の 日付 → シフト一覧 */
+export function shiftsByDateForFiscalYear(fy: number): Map<string, Shift[]> {
+  const { start, end } = fiscalYearRange(fy);
+  const map = new Map<string, Shift[]>();
+  for (const s of getShiftsForRange(start, end)) {
+    const list = map.get(s.date) ?? [];
+    list.push(s);
+    map.set(s.date, list);
+  }
+  return map;
+}
